@@ -1,0 +1,4 @@
+interface:
+  display_name: "RGX-brief"
+  short_description: "把一个项目下多份 RGX-archive 存档按时间线合成一份可发合伙人、可回看的 markdown 诊断报告。"
+  default_prompt: "使用 $RGX-brief，把这个项目的几次存档合成一份报告给合伙人看。"
