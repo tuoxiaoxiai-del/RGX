@@ -8,3 +8,6 @@ knowledge/_internal
 .DS_Store
 __pycache__/
 *.pyc
+# license 真实数据（含 secret，切勿提交）
+license/store/licenses.json
+license/store/*.tmp

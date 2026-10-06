@@ -1,0 +1,5 @@
+{
+  "secret": "REPLACE_WITH_AUTO_GENERATED_SECRET",
+  "admin_secret": "REPLACE_WITH_STRONG_ADMIN_SECRET",
+  "keys": {}
+}
