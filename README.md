@@ -15,7 +15,20 @@ RGX 操盘系统是一套面向生意人 / 操盘手的 AI 智能体技能集，
 - 反馈自愈：报问题自动生成反馈卡，持续优化系统
 
 ## 安装
-需要 WorkBuddy（或兼容的 AI 桌面端）运行环境。安装命令在仓库就绪后随购买附赠。
+需要 WorkBuddy（或兼容的 AI 桌面端）运行环境。
+
+**已购买用户，一行命令安装：**
+
+- macOS / Linux（终端）：
+  ```bash
+  curl -fsSL https://raw.githubusercontent.com/tuoxiaoxiai-del/RGX/master/install.sh | bash
+  ```
+- Windows（PowerShell）：
+  ```powershell
+  irm https://raw.githubusercontent.com/tuoxiaoxiai-del/RGX/master/install.ps1 | iex
+  ```
+
+脚本会自动定位 WorkBuddy 技能目录、复制 46 个 RGX 技能，重启即生效。手动方式与故障排查见 [使用指南.md](使用指南.md)。
 
 ## 首次使用
 启动后它会先和你「聊生意」建档——想到哪说到哪，之后所有判断基于你的真实盘子，不用每次重讲。
