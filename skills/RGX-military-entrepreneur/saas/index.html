@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>龙华 OPC 产业园 · 军创主体一站式申报后台</title>
+<style>
+:root{--ink:#0b3d2e;--ink2:#14532d;--accent:#d4a373;--paper:#faf6f0;--line:#cdd8d0;--bg:#f3f7f4;--txt:#1a1a1a;--mut:#6b7a72}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#eef2ef;color:var(--txt);line-height:1.55}
+header{background:linear-gradient(120deg,var(--ink),#0e5040);color:#fff;padding:22px 28px}
+header h1{margin:0;font-size:20px;letter-spacing:.5px}
+header p{margin:4px 0 0;opacity:.85;font-size:13px}
+.wrap{max-width:960px;margin:18px auto;padding:0 16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin:14px 0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.card h2{color:var(--ink);margin:0 0 10px;font-size:16px;border-left:5px solid var(--ink);padding-left:10px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+select,input[type=text]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-size:14px;background:#fff}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.btn{background:var(--ink);color:#fff;border:none;border-radius:8px;padding:11px 18px;font-size:14px;cursor:pointer;margin-top:14px}
+.btn:hover{background:#0e5040}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--ink);color:#fff;font-weight:600}
+tr:nth-child(even) td{background:var(--bg)}
+.tag{display:inline-block;background:var(--paper);color:#7a5c3a;border:1px solid var(--accent);border-radius:12px;padding:1px 9px;font-size:11px;margin:2px}
+.stage{font-size:11px;color:#fff;background:var(--ink2);border-radius:4px;padding:1px 6px;margin-left:6px}
+.sumbox{background:var(--paper);border-left:4px solid var(--accent);padding:12px 14px;border-radius:6px;font-size:14px}
+.sumbox b{color:var(--ink)}
+.badge{display:inline-block;background:#0b3d2e;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;margin-left:6px}
+.mut{color:var(--mut);font-size:12px}
+.pbar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:6px}
+.pbar>i{display:block;height:100%;background:linear-gradient(90deg,var(--ink),#3f8f6f)}
+.hidden{display:none}
+footer{max-width:960px;margin:20px auto;padding:12px 16px;color:var(--mut);font-size:12px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>龙华 OPC 产业园 · 军创主体一站式申报后台</h1>
+  <p>入驻即报：登记主体 → 自动顶格匹配 → 生成申报清单 + 代办进度</p>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <h2>① 入驻登记</h2>
+    <div class="grid3">
+      <div>
+        <label>主体身份</label>
+        <select id="identity">
+          <option value="veteran">退役军人（叠加顶格）</option>
+          <option value="general">普通创业者（仅普惠层）</option>
+        </select>
+      </div>
+      <div>
+        <label>企业形态</label>
+        <select id="entity">
+          <option>个体</option>
+          <option selected>一人公司</option>
+          <option>小微</option>
+        </select>
+      </div>
+      <div>
+        <label>所在地</label>
+        <select id="region">
+          <option selected>龙华</option>
+          <option>福田</option>
+          <option>全市</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid3">
+      <div><label>主体名称 / 姓名</label><input type="text" id="name" placeholder="例：某某一人公司 / 张某某"></div>
+      <div><label>退役证号（选填）</label><input type="text" id="cert" placeholder="用于军创认定"></div>
+      <div><label>联系电话（选填）</label><input type="text" id="phone" placeholder="代办进度通知"></div>
+    </div>
+    <button class="btn" id="run">自动顶格匹配 · 生成申报清单</button>
+  </div>
+
+  <div class="card hidden" id="result">
+    <h2>② 顶格匹配结果 <span class="badge" id="stageBadge"></span></h2>
+    <div class="sumbox" id="summary"></div>
+    <table id="table">
+      <thead><tr><th>申报项</th><th>顶格可拿</th><th>向谁报</th><th>材料</th><th>进度</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn ghost" id="dl">导出申报清单（Markdown）</button>
+    <span class="mut">口径为报告值，申报以税务/人社/退役军人事务/承办银行当期答复为准。</span>
+  </div>
+
+  <div class="card hidden" id="board">
+    <h2>③ 代办进度看板（园区视角）</h2>
+    <div id="boardBody"></div>
+    <p class="mut">园区可作为「军创入驻即报」服务包：代办申报、跟踪窗口、提升入驻率与续费率。</p>
+  </div>
+
+</div>
+<footer>RGX-military-entrepreneur · 军创申报产品 Demo ｜ 前端可嵌入，对接后端即可上线</footer>
+
+<script>
+const DATA=[
+ {name:"一次性创业补贴",stage:1,dept:"人社部门",get:10000,vet:15000,mats:["退役证/转业证","营业执照","正常经营满6个月佐证"],win:"经营满6个月后申报"},
+ {name:"创业场租补贴（军创孵化载体）",stage:1,dept:"退役军人事务部门 / 园区",get:null,vet:null,mats:["退役证","入驻孵化载体证明","场地租赁合同"],win:"入驻即享，最长3年；福田最高1560/月",note:"近零成本卡位"},
+ {name:"免反担保资格（贷款铺底）",stage:1,dept:"退役军人事务+承办银行",get:null,vet:null,vetOnly:true,mats:["退役证","创业项目说明"],win:"身份审核通过，名单推送承办银行"},
+ {name:"个体经营顶格税费扣减（财税2023-14）",stage:2,dept:"主管税务机关",get:20000,vet:24000,entity:["个体"],mats:["退役证/转业证","税务登记信息"],win:"3年36个月内；政策至2027年底"},
+ {name:"普惠叠加（研发加计/小微减免/留抵退税）",stage:2,dept:"主管税务机关",get:null,vet:null,mats:["研发费用凭证","小微企业认定材料"],win:"年度汇算/留抵退税周期"},
+ {name:"自主择业军转干部个体经营免税",stage:2,dept:"主管税务机关",get:null,vet:null,vetOnly:true,entity:["个体"],mats:["转业证"],win:"取照起3年免增值税+个税"},
+ {name:"退役军人创业贷",stage:3,dept:"承办银行",get:null,vet:null,vetOnly:true,mats:["退役证","军功荣誉证明","用款需求"],win:"利率不高于该行普惠均值"},
+ {name:"创业担保贷款（贴息·可多次）",stage:3,dept:"人社部门+经办银行",get:300000,vet:500000,mats:["身份证明","退役证件","创业项目说明"],win:"个人顶格50万；小微至400万；累计≤3次；免反担保"},
+ {name:"地方专属产品（深军贷等）",stage:3,dept:"承办银行",get:null,vet:null,vetOnly:true,mats:["退役证","军创企业认定"],win:"深圳「深军贷」军创企业版"},
+ {name:"企业招用退役士兵定额税费扣减",stage:4,dept:"主管税务机关",get:null,vet:null,entity:["一人公司","小微"],mats:["招用退役士兵合同","社保缴费凭证"],win:"3年内按人数定额扣减"},
+ {name:"创业带动就业补贴",stage:4,dept:"人社部门",get:null,vet:30000,mats:["吸纳就业名单","社保记录"],win:"按带动人数定档；深圳顶格3万"},
+ {name:"全国退役军人创新创业大赛",stage:5,dept:"退役军人事务部门",get:null,vet:null,vetOnly:true,mats:["军创企业申报书","项目材料"],win:"获奖优先享多项扶持"},
+];
+const STAGE={1:"开办·入驻",2:"税务·首年",3:"融资·扩能力",4:"带岗·规模化",5:"品牌·大赛"};
+
+function money(v){if(v==null)return "—";return v>=10000?(v/10000).toFixed(1)+"万":v+"元";}
+
+function matched(identity,entity,region){
+ return DATA.filter(p=>{
+   if(p.entity && !p.entity.includes(entity))return false;
+   if(identity==="veteran" && p.vetOnly===true)return true;
+   if(identity==="general" && p.vetOnly===true)return false;
+   return p.get!=null || p.vet!=null || p.vetOnly===undefined;
+ });
+}
+
+document.getElementById("run").onclick=function(){
+ const identity=document.getElementById("identity").value;
+ const entity=document.getElementById("entity").value;
+ const region=document.getElementById("region").value;
+ const rows=matched(identity,entity,region);
+ const tb=document.querySelector("#table tbody");tb.innerHTML="";
+ let tv=0,tg=0;
+ rows.forEach(p=>{
+   const lift=(identity==="veteran"&&p.get!=null&&p.vet!=null&&p.vet>p.get)?p.vet-p.get:0;
+   let getTxt=p.get!=null?money(p.get):"—";
+   let vetTxt=(identity==="veteran")?(p.vet!=null?money(p.vet):"—"):getTxt;
+   let amtCell;
+   if(lift){tv+=p.vet;tg+=p.get;amtCell="退役军人 "+money(p.vet)+"<br><span class='mut'>普通 "+money(p.get)+" · 多拿 "+money(lift)+"</span>";}
+   else amtCell=vetTxt;
+   if(lift===0&&identity==="veteran"&&p.vet!=null){tv+=p.vet;}
+   const tr=document.createElement("tr");
+   tr.innerHTML="<td>"+p.name+"<span class='stage'>"+STAGE[p.stage]+"</span></td>"+
+     "<td>"+amtCell+"</td><td>"+p.dept+"</td>"+
+     "<td>"+p.mats.map(m=>"<span class='tag'>"+m+"</span>").join(" ")+"</td>"+
+     "<td class='mut'>"+p.win+"</td>";
+   tb.appendChild(tr);
+ });
+ document.getElementById("result").classList.remove("hidden");
+ document.getElementById("board").classList.remove("hidden");
+ document.getElementById("stageBadge").textContent=entity+" @ "+region;
+ const diff=tv-tg;
+ document.getElementById("summary").innerHTML=(identity==="veteran"&&tv)
+  ?"退役军人可量化现金补贴合计（顶格）约 <b>"+money(tv)+"</b>；普通创业者约 "+money(tg)+
+    (diff?("<b>多拿 "+money(diff)+"（"+Math.round(diff/tg*100)+"%）</b>"):"")
+  :"本配置以贷款/资质/场地类为主，现金差异有限。";
+ // board
+ let bb="";
+ ["已入驻","身份审核中","一次性补贴已报","贷款已批","大赛已投"].forEach((st,i)=>{
+   const pct=[100,60,40,20,5][i];
+   bb+="<div style='margin:8px 0'><span class='tag'>"+st+"</span> <span class='mut'>"+pct+"%</span>"+
+      "<div class='pbar'><i style='width:"+pct+"%'></i></div></div>";
+ });
+ document.getElementById("boardBody").innerHTML=bb;
+};
+
+document.getElementById("dl").onclick=function(){
+ const identity=document.getElementById("identity").value;
+ const entity=document.getElementById("entity").value;
+ const region=document.getElementById("region").value;
+ const name=document.getElementById("name").value||"（未填）";
+ let md="# 军创申报清单 · "+name+"\n\n> 身份："+(identity==="veteran"?"退役军人":"普通创业者")+" ｜ 形态："+entity+" ｜ 地点："+region+"\n\n";
+ md+="| 申报项 | 顶格可拿 | 向谁报 | 材料 | 进度/窗口 |\n|---|---|---|---|---|\n";
+ matched(identity,entity,region).forEach(p=>{
+   let amt=p.get!=null?money(p.get):"—";
+   md+="| "+p.name+" | "+amt+" | "+p.dept+" | "+p.mats.join("、")+" | "+p.win+" |\n";
+ });
+ md+="\n⚠ 口径为报告值，申报以税务/人社/退役军人事务/承办银行当期答复为准。\n";
+ const blob=new Blob([md],{type:"text/markdown"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="军创申报清单_"+entity+"_"+region+".md";a.click();
+};
+</script>
+</body>
+</html>
